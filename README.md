@@ -1,4 +1,6 @@
-# 🏠 Proyecto: Predicción de Precios de Propiedades en Madrid
+# 🏠 Proyecto 7: Predicción de Precios de Alquiler en Madrid
+
+![House rental price predictor](https://raw.githubusercontent.com/SrAlcast/Proyecto7-PrediccionCasas/refs/heads/main/src/House%20rental%20price%20predictor.jpg)
 
 ## 📖 Descripción del Proyecto
 
@@ -39,8 +41,7 @@ Este proyecto utiliza **Python 3.8** y requiere las siguientes bibliotecas:
 
 1. Clona el repositorio:
    ```bash
-   git clone https://github.com/tu-usuario/proyecto-madrid-prices.git
-   cd proyecto-madrid-prices
+   git clone https://github.com/SrAlcast/Proyecto7-PrediccionCasas.git
    ```
 
 2. Instala las dependencias:
