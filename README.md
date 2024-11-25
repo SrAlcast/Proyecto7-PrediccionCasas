@@ -69,7 +69,7 @@ Este proyecto utiliza **Python 3.8** y requiere las siguientes bibliotecas:
 ## 📊 Resultados y Conclusiones
 
 - Se han construido 4 modelos predictivos capaces de estimar los precios con base en las características principales.
-- La herramienta interactiva permitirá probar diferentes escenarios, siendo útil para agentes inmobiliarios y compradores.
+- El modelo que mejores metricas a proporcionado ha sido
 
 ## 🤝 Contribuciones
 

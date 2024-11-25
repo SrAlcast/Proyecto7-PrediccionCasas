@@ -55,8 +55,9 @@ def metricas(y_train, y_train_pred, y_test, y_test_pred):
     media_respuesta = round((np.mean(y_train) + np.mean(y_test)) / 2, 4)
     mediana_respuesta = round((np.median(y_train) + np.median(y_test)) / 2, 4)
     
-    ratio_media= {metric:((train_metricas[metric]+test_metricas[metric])/2)/media_respuesta for metric in train_metricas}
-    ratio_mediana= {metric:((train_metricas[metric]+test_metricas[metric])/2)/mediana_respuesta for metric in train_metricas}
+    # Ratio sobre la media
+    ratio_media= {metric:(((train_metricas[metric]+test_metricas[metric])/2)*100)/media_respuesta for metric in train_metricas}
+    ratio_mediana= {metric:(((train_metricas[metric]+test_metricas[metric])/2)*100)/mediana_respuesta for metric in train_metricas}
 
     # Calcular porcentaje de influencia basado en la referencia
     porcentaje2 = {
@@ -77,10 +78,10 @@ def metricas(y_train, y_train_pred, y_test, y_test_pred):
         'Diferenceia Train-Test': diferencias,
         'Porcentaje diferencia (%)': porcentaje,
         'Media':media_respuesta,
-        'Ratio Media':ratio_media,
+        'Ratio Media(%)':ratio_media,
         'Influencia dif media (%)': porcentaje2,
         'Mediana':mediana_respuesta,
-        'Ratio Mediana':ratio_mediana,
+        'Ratio Mediana(%)':ratio_mediana,
         'Influencia dif mediana (%)': porcentaje3,    
     }
     return pd.DataFrame(metricas).T
@@ -163,6 +164,188 @@ def rmse_plot(df, mse_column, columns, figure_size=(16, 10)):
         sns.lineplot(x=rmse.index, y=rmse.values, ax=ax)
         ax.set_title(f"RMSE por {column}")
         ax.grid()
+
+    plt.tight_layout()
+    plt.show()
+
+def analizar_correlaciones(df, target_column, threshold=0.05):
+    """
+    Analiza la correlación de las columnas con respecto a la variable objetivo.
+    
+    Parámetros:
+    - df (DataFrame): Dataset que contiene las variables.
+    - target_column (str): Nombre de la columna objetivo para calcular las correlaciones.
+    - threshold (float): Umbral para identificar columnas con baja correlación (por defecto, 0.05).
+    
+    Retorna:
+    - low_correlation_columns (list): Lista de columnas con correlación baja con la columna objetivo.
+    """
+    # Calcular la matriz de correlación
+    correlation_matrix = df.corr()
+    
+    # Correlación con la variable objetivo
+    correlation_with_target = correlation_matrix[target_column].sort_values(ascending=False)
+    
+    # Mostrar las correlaciones
+    print(f"Correlaciones con '{target_column}':")
+    print(correlation_with_target)
+    
+    # Visualizar correlaciones
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x=correlation_with_target.index, y=correlation_with_target.values, palette="viridis")
+    plt.xticks(rotation=90, ha='right')
+    plt.title(f'Correlaciones de cada columna con "{target_column}"')
+    plt.ylabel('Correlación')
+    plt.xlabel('Columnas')
+    plt.grid()
+    plt.tight_layout()
+    plt.show()
+    
+    # Identificar columnas con baja correlación
+    low_correlation_columns = correlation_with_target[correlation_with_target.abs() < threshold].index.tolist()
+    print(f"\nColumnas con baja correlación (abs < {threshold}):")
+    print(low_correlation_columns)
+    
+    return low_correlation_columns
+
+def comparativa_graficos(y_test, y_pred_test):
+    """
+    Genera 4 gráficos comparativos entre valores reales y predicciones:
+    1. Dispersión (Scatter Plot)
+    2. Errores residuales
+    3. Línea de valores reales vs predicciones
+    4. KDE para comparar distribuciones de valores reales y predicciones
+    """
+    # Asegurarse de que y_test y y_pred_test sean unidimensionales
+    if isinstance(y_test, (pd.DataFrame, pd.Series)):
+        y_test = y_test.to_numpy().ravel()
+    if isinstance(y_pred_test, (pd.DataFrame, pd.Series)):
+        y_pred_test = y_pred_test.to_numpy().ravel()
+
+    # Figura con subplots
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+    axes = axes.ravel()
+    
+    # 1. Gráfico de dispersión
+    sns.scatterplot(x=y_test, y=y_pred_test, alpha=0.6, ax=axes[0])
+    axes[0].plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linestyle='--', label='Línea de identidad')
+    axes[0].set_title('Dispersión: Predicciones vs Valores Reales')
+    axes[0].set_xlabel('Valores Reales')
+    axes[0].set_ylabel('Predicciones')
+    axes[0].legend()
+    axes[0].grid()
+    
+    # 2. Gráfico de errores residuales
+    residuos = y_test - y_pred_test
+    sns.scatterplot(x=y_pred_test, y=residuos, alpha=0.6, ax=axes[1])
+    axes[1].axhline(0, color='red', linestyle='--')
+    axes[1].set_title('Errores Residuales')
+    axes[1].set_xlabel('Predicciones')
+    axes[1].set_ylabel('Residuos')
+    axes[1].grid()
+    
+    # 3. Gráfico de barras de diferencia absoluta
+    diferencias = abs(y_test - y_pred_test)
+    sns.lineplot(x=range(len(diferencias)), y=diferencias, ax=axes[2], color='purple', alpha=0.7)
+    axes[2].set_title('Diferencia Absoluta Suavizada')
+    axes[2].set_xlabel('Índice')
+    axes[2].set_ylabel('Diferencia Absoluta')
+    axes[2].grid()
+
+    # 4. KDE de distribuciones
+    sns.kdeplot(y_test, color='blue', label='Valores Reales', fill=True, alpha=0.3, ax=axes[3])
+    sns.kdeplot(y_pred_test, color='orange', label='Predicciones', fill=True, alpha=0.3, ax=axes[3])
+    axes[3].set_title('Distribución (KDE) de Valores Reales y Predicciones')
+    axes[3].set_xlabel('Valor')
+    axes[3].set_ylabel('Densidad')
+    axes[3].legend()
+    axes[3].grid()
+    
+    # Ajustar diseño
+    plt.tight_layout()
+    plt.show()
+
+def plot_real_vs_predicted(y_test, y_test_pred, y_train, y_train_pred):
+    """
+    Plots Real vs Predicted Prices for test and train datasets.
+
+    Parameters:
+        y_test (array-like): Actual target values for the test set.
+        y_test_pred (array-like): Predicted target values for the test set.
+        y_train (array-like): Actual target values for the train set.
+        y_train_pred (array-like): Predicted target values for the train set.
+    """
+    plt.figure(figsize=(10, 6), dpi=150)
+    plt.suptitle('Real vs. Predicted Prices')
+
+    # Test data plot
+    plt.subplot(2, 1, 1)
+    sns.scatterplot(x=y_test, y=y_test_pred, alpha=0.6, s=10, label="Test data")
+    plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linestyle='--', label="Perfect prediction line", lw=0.7)
+    plt.xlabel('Real Prices (y_test)')
+    plt.ylabel('Predicted Prices (y_test_pred)')
+    plt.legend()
+
+    # Train data plot
+    plt.subplot(2, 1, 2)
+    sns.scatterplot(x=y_train, y=y_train_pred, alpha=0.6, s=10, color="forestgreen", label="Train data")
+    plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linestyle='--', label="Perfect prediction line", lw=0.7)
+    plt.xlabel('Real Prices (y_train)')
+    plt.ylabel('Predicted Prices (y_train_pred)')
+    plt.legend()
+
+    # Adjust layout and display
+    plt.tight_layout()
+    plt.show()
+
+def plot_residuals(y_test, y_test_pred, y_train, y_train_pred):
+    """
+    Plots residual plots (absolute and relative) for test and train datasets.
+
+    Parameters:
+        y_test (array-like): Actual target values for the test set.
+        y_test_pred (array-like): Predicted target values for the test set.
+        y_train (array-like): Actual target values for the train set.
+        y_train_pred (array-like): Predicted target values for the train set.
+    """
+    plt.figure(figsize=(10, 6), dpi=150)
+    plt.suptitle('Residual Plot (Absolute and Relative)')
+
+    # Absolute residuals for test data
+    residuals_test = y_test_pred - y_test
+    plt.subplot(2, 2, 1)
+    sns.scatterplot(x=y_test, y=residuals_test, alpha=0.6, s=10, label="Test Data")
+    plt.axhline(0, color='red', linestyle='--', label="Perfect prediction", lw=0.7)
+    plt.xlabel('Real Prices (y_test)')
+    plt.ylabel('Residuals')
+    plt.legend()
+
+    # Absolute residuals for train data
+    residuals_train = y_train_pred - y_train
+    plt.subplot(2, 2, 2)
+    sns.scatterplot(x=y_train, y=residuals_train, alpha=0.6, s=10, color="forestgreen", label="Train Data")
+    plt.axhline(0, color='red', linestyle='--', label="Perfect prediction", lw=0.7)
+    plt.xlabel('Real Prices (y_train)')
+    plt.ylabel('Residuals')
+    plt.legend()
+
+    # Relative residuals (%) for test data
+    relative_residuals_test = (y_test_pred - y_test) / y_test * 100
+    plt.subplot(2, 2, 3)
+    sns.scatterplot(x=y_test, y=relative_residuals_test, alpha=0.6, s=10, label="Test Data")
+    plt.axhline(0, color='red', linestyle='--', label="Perfect prediction", lw=0.7)
+    plt.xlabel('Real Prices (y_test)')
+    plt.ylabel('Residuals (%)')
+    plt.legend()
+
+    # Relative residuals (%) for train data
+    relative_residuals_train = (y_train_pred - y_train) / y_train * 100
+    plt.subplot(2, 2, 4)
+    sns.scatterplot(x=y_train, y=relative_residuals_train, alpha=0.6, s=10, color="forestgreen", label="Train Data")
+    plt.axhline(0, color='red', linestyle='--', label="Perfect prediction", lw=0.7)
+    plt.xlabel('Real Prices (y_train)')
+    plt.ylabel('Residuals (%)')
+    plt.legend()
 
     plt.tight_layout()
     plt.show()
