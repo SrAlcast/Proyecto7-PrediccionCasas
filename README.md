@@ -63,13 +63,23 @@ Este proyecto utiliza **Python 3.8** y requiere las siguientes bibliotecas:
    - Entrenar modelos como Regresión Lineal, Random Forest o Gradient Boosting.
    - Comparar métricas como RMSE y R² para seleccionar el mejor modelo.
 
-4. **Aplicación Interactiva**:
-   - Desarrollar una interfaz en Streamlit para permitir al usuario ingresar características y obtener predicciones.
-
 ## 📊 Resultados y Conclusiones
 
 - Se han construido 4 modelos predictivos capaces de estimar los precios con base en las características principales.
-- El modelo que mejores metricas a proporcionado ha sido
+- Estos modelos han sido:
+#### **1. Linear Regression**
+Modelo simple que asume una relación lineal entre las variables. Es rápido y fácil de interpretar, pero no captura relaciones no lineales.
+
+#### **2. Decision Tree Regressor**
+Divide los datos en regiones basadas en reglas simples. Captura relaciones no lineales, pero es propenso al sobreajuste sin regular.
+
+#### **3. Random Forest Regressor**
+Ensamble de múltiples árboles de decisión que reduce la varianza y generaliza bien. Es más preciso que un solo árbol, pero menos interpretable.
+
+#### **4. Gradient Boosting Regressor**
+Modelo secuencial que corrige errores iterativamente. Muy preciso en problemas complejos, aunque más lento y sensible al sobreajuste.
+
+- El modelo que mejores metricas a proporcionado sorprendentemente ha sido Linear Regression
 
 ## 🤝 Contribuciones
 
