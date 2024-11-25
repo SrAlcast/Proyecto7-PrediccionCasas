@@ -29,7 +29,6 @@ def metricas(y_train, y_train_pred, y_test, y_test_pred):
         'MAE': round(mean_absolute_error(y_train, y_train_pred), 4),
         'MSE': round(mean_squared_error(y_train, y_train_pred), 4),
         'RMSE': round(np.sqrt(mean_squared_error(y_train, y_train_pred)), 4),
-        'RMSE-MAE':round(np.sqrt(mean_squared_error(y_test, y_test_pred)), 4)-round(mean_absolute_error(y_test, y_test_pred), 4)
     }
     
     test_metricas = {
@@ -37,7 +36,6 @@ def metricas(y_train, y_train_pred, y_test, y_test_pred):
         'MAE': round(mean_absolute_error(y_test, y_test_pred), 4),
         'MSE': round(mean_squared_error(y_test, y_test_pred), 4),
         'RMSE': round(np.sqrt(mean_squared_error(y_test, y_test_pred)), 4),
-        'RMSE-MAE':round(np.sqrt(mean_squared_error(y_test, y_test_pred)), 4)-round(mean_absolute_error(y_test, y_test_pred), 4)
     }
     
     # Calcular diferencias
