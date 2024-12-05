@@ -1,4 +1,4 @@
-# 🏠 Proyecto 7: Predicción de Precios de Alquiler en Madrid
+# 🏠 Proyecto 7: House Rental Price Predictor
 
 ![House rental price predictor](https://raw.githubusercontent.com/SrAlcast/Proyecto7-PrediccionCasas/refs/heads/main/src/House%20rental%20price%20predictor.jpg)
 
